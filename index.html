@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TikTok Downloader - Dezz</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+    h1 {
+      color: #ff0050;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 80%;
+      max-width: 500px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 18px;
+      background: #ff0050;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #e60045;
+    }
+    .result {
+      margin-top: 30px;
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+    }
+    video {
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+    .author {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+      gap: 10px;
+    }
+    .author img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .download-btns {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-around;
+    }
+    .download-btns a {
+      text-decoration: none;
+      color: #fff;
+      background: #ff0050;
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎵 TikTok Downloader</h1>
+  <input id="url" type="text" placeholder="Masukkan URL TikTok..." />
+  <button onclick="getVideo()">Download</button>
+
+  <div id="result" class="result" style="display:none;"></div>
+
+  <script>
+    async function getVideo() {
+      const url = document.getElementById("url").value.trim();
+      if (!url) return alert("Masukkan URL TikTok dulu!");
+
+      const resDiv = document.getElementById("result");
+      resDiv.style.display = "block";
+      resDiv.innerHTML = "<p>⏳ Sedang memproses...</p>";
+
+      try {
+        const res = await fetch(`https://api.dlz.my.id/api/ttdl?url=${encodeURIComponent(url)}`);
+        const data = await res.json();
+
+        if (!data.status) throw new Error("Gagal mengambil video");
+
+        const { author, video, stats } = data.result;
+
+        resDiv.innerHTML = `
+          <div class="author">
+            <img src="${author.avatar}" alt="avatar">
+            <div>
+              <b>@${author.name}</b><br>
+              <small>${author.nickname}</small>
+            </div>
+          </div>
+          <video controls poster="${author.avatar}">
+            <source src="${video.play}" type="video/mp4">
+            Browser kamu tidak mendukung video tag.
+          </video>
+          <div class="stats">
+            <div>👀 ${stats.views.toLocaleString()}</div>
+            <div>❤️ ${stats.likes.toLocaleString()}</div>
+            <div>💬 ${stats.comments.toLocaleString()}</div>
+            <div>🔁 ${stats.shares.toLocaleString()}</div>
+          </div>
+          <div class="download-btns">
+            <a href="${video.play}" target="_blank" download>Tanpa WM</a>
+            <a href="${video.wmplay}" target="_blank" download>Dengan WM</a>
+          </div>
+        `;
+      } catch (err) {
+        console.error(err);
+        resDiv.innerHTML = "<p>❌ Gagal mengambil data. Coba lagi.</p>";
+      }
+    }
+  </script>
+</body>
+  </html>
