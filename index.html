@@ -1,140 +1,126 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TikTok Downloader - Dezz</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TikTok Downloader — Dezz</title>
   <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      background: #0f0f0f;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px;
-    }
-    h1 {
-      color: #ff0050;
-      margin-bottom: 20px;
-    }
-    input {
-      width: 80%;
-      max-width: 500px;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-      margin-bottom: 10px;
-    }
-    button {
-      padding: 10px 18px;
-      background: #ff0050;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: #e60045;
-    }
-    .result {
-      margin-top: 30px;
-      background: #1a1a1a;
-      padding: 20px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 600px;
-    }
-    video {
-      width: 100%;
-      border-radius: 12px;
-      margin-top: 10px;
-    }
-    .author {
-      display: flex;
-      align-items: center;
-      margin-top: 10px;
-      gap: 10px;
-    }
-    .author img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-    }
-    .stats {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 10px;
-      font-size: 14px;
-    }
-    .download-btns {
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-around;
-    }
-    .download-btns a {
-      text-decoration: none;
-      color: #fff;
-      background: #ff0050;
-      padding: 10px 14px;
-      border-radius: 8px;
-    }
+    :root{--pink:#ff0050;--bg:#0f0f10;--card:#141414}
+    body{font-family:Inter, system-ui, Arial; background:var(--bg); color:#fff; display:flex; align-items:center; justify-content:center; padding:28px; min-height:100vh}
+    .wrap{width:100%;max-width:760px}
+    h1{color:var(--pink); margin:0 0 12px}
+    .card{background:var(--card); padding:18px; border-radius:12px; box-shadow:0 6px 24px rgba(0,0,0,0.6)}
+    input[type="text"]{width:100%; padding:12px 14px; border-radius:8px; border:1px solid #222; background:#0b0b0b; color:#fff}
+    .row{display:flex; gap:10px; margin-top:10px}
+    button{background:var(--pink); border:none; padding:10px 14px; border-radius:8px; cursor:pointer; color:#fff}
+    .result{margin-top:16px}
+    video{width:100%; border-radius:10px; background:#000}
+    .meta{display:flex; gap:12px; align-items:center; margin-top:10px}
+    .meta img{width:56px;height:56px;border-radius:50%}
+    .stats{display:flex; gap:8px; margin-top:8px; font-size:13px; color:#ddd}
+    .download-row{display:flex; gap:8px; margin-top:10px}
+    a.btn{display:inline-block; padding:8px 12px; border-radius:8px; text-decoration:none; color:#fff; background:var(--pink)}
+    .small{font-size:13px;color:#bbb}
   </style>
 </head>
 <body>
-  <h1>🎵 TikTok Downloader</h1>
-  <input id="url" type="text" placeholder="Masukkan URL TikTok..." />
-  <button onclick="getVideo()">Download</button>
+  <div class="wrap">
+    <h1>🎵 TikTok Downloader (No API Key)</h1>
+    <div class="card">
+      <div>
+        <input id="url" type="text" placeholder="Masukkan URL TikTok (cth: https://vt.tiktok.com/...)"/>
+      </div>
+      <div class="row">
+        <button id="go">Ambil & Tonton</button>
+        <button id="clear" style="background:#333">Clear</button>
+      </div>
 
-  <div id="result" class="result" style="display:none;"></div>
+      <div id="result" class="result" style="display:none"></div>
+    </div>
+    <p class="small" style="margin-top:8px">Catatan: video diputar langsung via URL streaming dari API. Jika streaming tidak muncul, coba paste link lain atau cek CORS.</p>
+  </div>
 
   <script>
-    async function getVideo() {
-      const url = document.getElementById("url").value.trim();
-      if (!url) return alert("Masukkan URL TikTok dulu!");
+    const goBtn = document.getElementById('go');
+    const clearBtn = document.getElementById('clear');
+    const urlInput = document.getElementById('url');
+    const resultDiv = document.getElementById('result');
 
-      const resDiv = document.getElementById("result");
-      resDiv.style.display = "block";
-      resDiv.innerHTML = "<p>⏳ Sedang memproses...</p>";
+    clearBtn.onclick = () => {
+      urlInput.value = '';
+      resultDiv.style.display = 'none';
+      resultDiv.innerHTML = '';
+    };
+
+    goBtn.onclick = fetchVideo;
+    urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') fetchVideo(); });
+
+    async function fetchVideo() {
+      const url = urlInput.value.trim();
+      if (!url) return alert('Masukkan URL TikTok dulu!');
+
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = '<p>⏳ Mengambil data...</p>';
 
       try {
-        const res = await fetch(`https://api.dlz.my.id/api/ttdl?url=${encodeURIComponent(url)}`);
-        const data = await res.json();
+        // Panggil API kamu sendiri (serverless proxy)
+        const apiUrl = `/api/ttdl?url=${encodeURIComponent(url)}`;
+        const r = await fetch(apiUrl);
+        const json = await r.json();
 
-        if (!data.status) throw new Error("Gagal mengambil video");
+        if (!json || !json.status) {
+          resultDiv.innerHTML = '<p>❌ Gagal ambil data. Coba lagi.</p>';
+          console.error('upstream', json);
+          return;
+        }
 
-        const { author, video, stats } = data.result;
+        const { author, video, stats } = json.result;
 
-        resDiv.innerHTML = `
-          <div class="author">
-            <img src="${author.avatar}" alt="avatar">
+        // build UI
+        resultDiv.innerHTML = `
+          <div class="meta">
+            <img src="${author.avatar || ''}" alt="avatar" onerror="this.style.display='none'"/>
             <div>
-              <b>@${author.name}</b><br>
-              <small>${author.nickname}</small>
+              <div><strong>@${author.name || ''}</strong></div>
+              <div class="small">${author.nickname || ''}</div>
             </div>
           </div>
-          <video controls poster="${author.avatar}">
-            <source src="${video.play}" type="video/mp4">
-            Browser kamu tidak mendukung video tag.
-          </video>
-          <div class="stats">
-            <div>👀 ${stats.views.toLocaleString()}</div>
-            <div>❤️ ${stats.likes.toLocaleString()}</div>
-            <div>💬 ${stats.comments.toLocaleString()}</div>
-            <div>🔁 ${stats.shares.toLocaleString()}</div>
+
+          <div style="margin-top:10px">
+            <video id="player" controls preload="metadata" poster="${author.avatar || ''}">
+              <source src="${video.play}" type="video/mp4">
+              Browser kamu tidak mendukung video.
+            </video>
           </div>
-          <div class="download-btns">
-            <a href="${video.play}" target="_blank" download>Tanpa WM</a>
-            <a href="${video.wmplay}" target="_blank" download>Dengan WM</a>
+
+          <div class="stats">
+            <div>👀 ${numberWithCommas(stats.views || 0)}</div>
+            <div>❤️ ${numberWithCommas(stats.likes || 0)}</div>
+            <div>💬 ${numberWithCommas(stats.comments || 0)}</div>
+            <div>🔁 ${numberWithCommas(stats.shares || 0)}</div>
+          </div>
+
+          <div class="download-row">
+            <a class="btn" href="${video.play}" download target="_blank">Download (No WM)</a>
+            <a class="btn" href="${video.wmplay || '#'}" download target="_blank">Download (With WM)</a>
+            <a class="btn" id="openTab" href="${video.play}" target="_blank">Buka di Tab Baru</a>
           </div>
         `;
+
+        // try to autoplay muted (some browsers block)
+        const player = document.getElementById('player');
+        try { player.muted = true; player.play().catch(()=>{}); } catch(e){}
+
       } catch (err) {
         console.error(err);
-        resDiv.innerHTML = "<p>❌ Gagal mengambil data. Coba lagi.</p>";
+        resultDiv.innerHTML = '<p>❌ Terjadi error, cek console.</p>';
       }
+    }
+
+    function numberWithCommas(x){
+      if(!x && x!==0) return '';
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
   </script>
 </body>
-  </html>
+</html>
